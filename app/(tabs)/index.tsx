@@ -1,11 +1,3 @@
-import MovieCard from '@/components/MovieCard';
-import SearchBar from '@/components/SearchBar';
-import TrendingCard from '@/components/TrendingCard';
-import { icons } from '@/constants/icons';
-import { images } from '@/constants/images';
-import { fetchMovies } from '@/services/api';
-import { getTrendingMovies } from '@/services/appwrite';
-import { useFetch } from '@/services/useFetch';
 import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
@@ -16,7 +8,18 @@ import {
   View,
 } from 'react-native';
 
-export default function Index() {
+import { fetchMovies } from '@/services/api';
+import { getTrendingMovies } from '@/services/appwrite';
+
+import { icons } from '@/constants/icons';
+import { images } from '@/constants/images';
+
+import MovieCard from '@/components/MovieCard';
+import SearchBar from '@/components/SearchBar';
+import TrendingCard from '@/components/TrendingCard';
+import { useFetch } from '@/services/useFetch';
+
+const Index = () => {
   const router = useRouter();
 
   const {
@@ -33,7 +36,12 @@ export default function Index() {
 
   return (
     <View className="flex-1 bg-primary">
-      <Image source={images.bg} className="absolute w-full z-0" />
+      <Image
+        source={images.bg}
+        className="absolute w-full z-0"
+        resizeMode="cover"
+      />
+
       <ScrollView
         className="flex-1 px-5"
         showsVerticalScrollIndicator={false}
@@ -43,8 +51,8 @@ export default function Index() {
 
         {moviesLoading || trendingLoading ? (
           <ActivityIndicator
-            size={'large'}
-            color={'#0000ff'}
+            size="large"
+            color="#0000ff"
             className="mt-10 self-center"
           />
         ) : moviesError || trendingError ? (
@@ -52,32 +60,39 @@ export default function Index() {
         ) : (
           <View className="flex-1 mt-5">
             <SearchBar
-              onPress={() => router.push('/search')}
-              placeholder={'Search for a movie'}
+              onPress={() => {
+                router.push('/search');
+              }}
+              placeholder="Search for a movie"
             />
 
             {trendingMovies && (
               <View className="mt-10">
                 <Text className="text-lg text-white font-bold mb-3">
-                  Trending movies
+                  Trending Movies
                 </Text>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="mb-4 mt-3"
+                  data={trendingMovies}
+                  contentContainerStyle={{
+                    gap: 26,
+                  }}
+                  renderItem={({ item, index }) => (
+                    <TrendingCard movie={item} index={index} />
+                  )}
+                  keyExtractor={(item) => item.movie_id.toString()}
+                  ItemSeparatorComponent={() => <View className="w-4" />}
+                />
               </View>
             )}
-            <>
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View className="w-4" />}
-                data={trendingMovies}
-                renderItem={({ item, index }) => (
-                  <TrendingCard movie={item} index={index} />
-                )}
-                keyExtractor={(item) => item.movie_id.toString()}
-              />
 
+            <>
               <Text className="text-lg text-white font-bold mt-5 mb-3">
-                Latest movies
+                Latest Movies
               </Text>
+
               <FlatList
                 data={movies}
                 renderItem={({ item }) => <MovieCard {...item} />}
@@ -98,4 +113,6 @@ export default function Index() {
       </ScrollView>
     </View>
   );
-}
+};
+
+export default Index;
